@@ -4,10 +4,19 @@ s = socket.socket()
 host = socket.gethostname()
 port = 1234
 s.bind((host, port))
-s.listen(5)
+s.listen(25)
+
+archivo = open("ArchivosATransferir/test.txt", "rb")
+#archivo = open("intro-dom.mp4", "rb")
+contenido = archivo.read()
+archivo.close()
 
 while True:
-    c, addr = s.accept()
+    sc, addr = s.accept()
+
     print('Connection obtained from ... ', addr)
-    c.send(b'Grace for connecting')
-    c.close ()
+
+    sc.send(contenido)
+    sc.close()
+
+s.close()
