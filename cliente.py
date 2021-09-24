@@ -5,11 +5,10 @@ host = socket.gethostname()
 port = 1234
 s.connect((host, port))
 
-archivo = open("Recibido_{}".format("test.txt"), "wb")
-#archivo = open("intro-domRecibido.mp4", "wb")
+nombreArchivo = s.recv(1024).decode()
+archivo = open("Recibido_{}".format(nombreArchivo), "wb")
 
 recibido = s.recv(65536)
-
 while recibido != b'':
     archivo.write(recibido)
     recibido = s.recv(65536)
