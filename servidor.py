@@ -1,4 +1,4 @@
-import socket, threading
+import socket, threading, hashlib, time, os
 
 # Atributos
 nombreArchivo = None
@@ -9,8 +9,18 @@ cantConexiones = None
 def enviarArchivoAlCliente(socket, infoCliente):
     global nombreArchivo, contenidoArchivo
 
+    # Se envia el nombre del archivo
     socket.send(bytes(nombreArchivo.encode()))
+
+    # Se envia el codigo de hash del archivo
+    hashCode = hashlib.sha512()
+    hashCode.update(contenidoArchivo)
+    socket.send(hashCode.digest())
+    time.sleep(0.5)
+
+    # Se envia el contenido del archivo
     socket.send(contenidoArchivo)
+
     socket.close()
     print("Archivo enviado al cliente ... ", infoCliente)
 
@@ -51,6 +61,10 @@ if __name__ == "__main__":
                     thread.join()
 
                 threadsClientes = []
+
+                # Se crea y se escribe el log
+                if not os.path.isdir('Logs'):
+                    os.mkdir(os.path.join(os.getcwd(), "Logs"))
 
         s.close()
 
