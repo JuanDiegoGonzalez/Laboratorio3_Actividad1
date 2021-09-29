@@ -52,7 +52,7 @@ def recibirArchivoDelServidor(s):
     archivo.write("Nombre del archivo recibido: {}\n".format(nombreArchivo))
     archivo.write("Tamaño del archivo recibido: {} bytes\n\n".format(os.path.getsize("ArchivosRecibidos/Cliente{}-Prueba-{}.txt".format(numCliente, cantConexiones))))
 
-    archivo.write("Servidor desde el que se realizo la transferencia: ({}, {})\n\n".format(host, port))
+    archivo.write("Servidor desde el que se realizo la transferencia: ({}, {})\n\n".format(socket.gethostbyname(host), port))
 
     # archivo.write()
 
