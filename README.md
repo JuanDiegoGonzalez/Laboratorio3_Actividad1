@@ -7,6 +7,7 @@ Servidor:
 
 Nota: La carpeta "Logs" la crea automaticamente la aplicacion.
 
+
 Cliente:
 
 1. Una vez el servidor este "listo para atender clientes", ejecutar el archivo "cliente.py" en la carpeta "Cliente"
