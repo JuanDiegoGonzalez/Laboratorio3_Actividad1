@@ -3,7 +3,8 @@
 ## Servidor:
 
 1. Ejecutar el archivo "servidor.py" en la carpeta "Servidor".
-2. Ingresar (por consola) el nombre del archivo y la cantidad de conexiones a recibir. Luego de esto, el servidor esta "listo para atender clientes".
+2. Ingresar por consola el nombre del archivo a enviar (incluyendo la extension). Este debe estar en la carpeta "Servidor/ArchivosAEnviar"
+3. Ingresar por consola la cantidad de clientes en simultaneo (minimo 1). Luego de esto, el servidor esta "listo para atender clientes".
 
 Nota: La carpeta "Logs" la crea automaticamente la aplicacion.
 
