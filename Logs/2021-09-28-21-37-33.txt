@@ -1,5 +1,0 @@
-Nombre del archivo enviado: test.txt
-Tamaño del archivo enviado: 15 bytes
-
-Clientes a los que se realizo la transferencia:
-('192.168.182.1', 55482)/n('192.168.182.1', 55483)/n('192.168.182.1', 64384)/n

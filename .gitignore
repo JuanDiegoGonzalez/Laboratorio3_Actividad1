@@ -1,4 +1,9 @@
 # Archivos grandes
+Servidor/ArchivosAEnviar/100MB.txt
+Servidor/ArchivosAEnviar/250MB.txt
 
-Archivo100MB.pdf
-Archivo250MB.pdf
+# Carpetas
+
+Servidor/Logs/
+Cliente/Logs/
+Cliente/ArchivosRecibidos/
