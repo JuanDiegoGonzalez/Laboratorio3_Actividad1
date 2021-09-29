@@ -1,9 +1,11 @@
 import socket, threading, hashlib, time, os
+from datetime import datetime
 
 # Atributos
 nombreArchivo = None
 contenidoArchivo = None
 threadsClientes = []
+direccionesClientes = []
 cantConexiones = None
 
 def enviarArchivoAlCliente(socket, infoCliente):
@@ -52,7 +54,9 @@ if __name__ == "__main__":
             print('Conexion establecida desde ... ', addr)
             thread = threading.Thread(target=enviarArchivoAlCliente, args=(clientSocket,addr))
             threadsClientes.append(thread)
+            direccionesClientes.append(addr)
 
+            # Cuando se completa el grupo de clientes, se les envia el archivo y se escribe el log
             if len(threadsClientes) == cantConexiones:
                 for thread in threadsClientes:
                     thread.start()
@@ -65,8 +69,20 @@ if __name__ == "__main__":
                 # Se crea y se escribe el log
                 if not os.path.isdir('Logs'):
                     os.mkdir(os.path.join(os.getcwd(), "Logs"))
+                fechaStr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+                archivo = open("Logs/{}.txt".format(fechaStr), "w")
 
-        s.close()
+                archivo.write("Nombre del archivo enviado: {}\n".format(nombreArchivo))
+                archivo.write("Tamaño del archivo enviado: {} bytes\n\n".format(os.path.getsize(nombreArchivo)))
+
+                archivo.write("Clientes a los que se realizo la transferencia:\n")
+                for cliente in direccionesClientes:
+                    archivo.write("{}/n".format(cliente))
+                archivo.write("\n")
+
+                # archivo.write()
+
+                archivo.close()
 
     except (FileNotFoundError, ValueError, ConnectionResetError) as e:
         print("\n", e, sep="")

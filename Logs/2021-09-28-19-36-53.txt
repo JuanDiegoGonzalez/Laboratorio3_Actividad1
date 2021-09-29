@@ -1,0 +1,3 @@
+Nombre del archivo enviado: test.txt
+Tamaño del archivo enviado: 15
+

@@ -32,8 +32,8 @@ print("Archivo recibido")
 hashCode = hashlib.sha512()
 hashCode.update(contenido)
 if hashCode.digest() == hashRecibido:
-    print("El archivo NO fue modificado")
+    print("La entrega del archivo fue exitosa")
 else:
-    print("El archivo SI fue modificado")
+    print("La entrega del archivo NO fue exitosa")
 
 time.sleep(2)
