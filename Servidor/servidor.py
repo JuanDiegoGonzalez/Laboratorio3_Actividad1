@@ -7,9 +7,10 @@ contenidoArchivo = None
 threadsClientes = []
 direccionesClientes = []
 cantConexiones = None
+resultComprobacionHash = []
 
 def enviarArchivoAlCliente(socket, infoCliente, numCliente):
-    global nombreArchivo, contenidoArchivo
+    global nombreArchivo, contenidoArchivo, resultComprobacionHash
 
     # Se envia el numero del cliente
     socket.send(numCliente.encode())
@@ -32,7 +33,11 @@ def enviarArchivoAlCliente(socket, infoCliente, numCliente):
     # Se envia el contenido del archivo
     socket.send(contenidoArchivo)
     time.sleep(0.1)
+    socket.send(b'Fin')
+    time.sleep(0.1)
 
+    # Se recibe el resultado de la comprobacion del hash
+    resultComprobacionHash[int(numCliente)-1] = socket.recv(1024).decode()
     socket.close()
     print("Archivo enviado al cliente ... ", infoCliente)
 
@@ -48,6 +53,7 @@ if __name__ == "__main__":
         cantConexiones = int(input("Ingrese la cantidad de conexiones concurrentes: "))
         if cantConexiones < 1:
             raise ValueError("[Error] El numero debe ser mayor a 0")
+        resultComprobacionHash = [None for i in range(cantConexiones)]
 
         print("\nServidor listo para atender clientes")
 
@@ -81,12 +87,19 @@ if __name__ == "__main__":
                 archivo = open("Logs/{}.txt".format(fechaStr), "w")
 
                 archivo.write("Nombre del archivo enviado: {}\n".format(nombreArchivo))
-                archivo.write("Tamaño del archivo enviado: {} bytes\n\n".format(os.path.getsize("ArchivosAEnviar/{}".format(nombreArchivo))))
+                archivo.write("Tamano del archivo enviado: {} bytes\n\n".format(os.path.getsize("ArchivosAEnviar/{}".format(nombreArchivo))))
 
                 archivo.write("Clientes a los que se realizo la transferencia:\n")
-                for cliente in direccionesClientes:
-                    archivo.write("{}\n".format(cliente))
+                for i in range(cantConexiones):
+                    archivo.write("Cliente {}: {}\n".format(i+1, direccionesClientes[i]))
                 archivo.write("\n")
+
+                archivo.write("Resultados de la transferencia:\n")
+                for i in range(cantConexiones):
+                    archivo.write("Cliente {}: {}\n".format(i+1, resultComprobacionHash[i]))
+                archivo.write("\n")
+
+                # archivo.write()
 
                 # archivo.write()
 
@@ -95,6 +108,7 @@ if __name__ == "__main__":
                 # Se reinician las listas de clientes
                 threadsClientes = []
                 direccionesClientes = []
+                resultComprobacionHash = [None for i in range(cantConexiones)]
 
     except (FileNotFoundError, ValueError, ConnectionResetError) as e:
         print("\n", e, sep="")
