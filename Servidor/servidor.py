@@ -4,9 +4,9 @@ from datetime import datetime
 # Declaracion de atributos
 nombreArchivo = None
 contenidoArchivo = None
+cantConexiones = None
 threadsClientes = []
 direccionesClientes = []
-cantConexiones = None
 resultComprobacionHash = []
 cantidadListos = 0
 tiemposDeTransmision = []
@@ -18,10 +18,11 @@ def enviarArchivoAlCliente(socket, infoCliente, numCliente):
     socket.recv(1024).decode()
     cantidadListos += 1
 
+    # Se espera a que los demas clientes esten listos
     while cantidadListos < cantConexiones:
         ...
 
-    # Se envia el numero del cliente
+    # Se envia el id del cliente
     socket.send(numCliente.encode())
     time.sleep(0.1)
 
@@ -95,27 +96,32 @@ if __name__ == "__main__":
                     thread.join()
 
                 # Se crea y se escribe el log
+                # a.
                 if not os.path.isdir('Logs'):
                     os.mkdir(os.path.join(os.getcwd(), "Logs"))
                 fechaStr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
                 archivo = open("Logs/{}.txt".format(fechaStr), "w")
 
+                # b.
                 archivo.write("Nombre del archivo enviado: {}\n".format(nombreArchivo))
                 archivo.write("Tamano del archivo enviado: {} bytes\n\n".format(os.path.getsize("ArchivosAEnviar/{}".format(nombreArchivo))))
 
+                # c.
                 archivo.write("Clientes a los que se realizo la transferencia:\n")
                 for i in range(cantConexiones):
                     archivo.write("Cliente {}: {}\n".format(i+1, direccionesClientes[i]))
                 archivo.write("\n")
 
+                # d.
                 archivo.write("Resultados de la transferencia:\n")
                 for i in range(cantConexiones):
                     archivo.write("Cliente {}: {}\n".format(i+1, resultComprobacionHash[i]))
                 archivo.write("\n")
 
+                # e.
                 archivo.write("Tiempos de transmision:\n")
                 for i in range(cantConexiones):
-                    archivo.write("Cliente {}: {} segundos\n".format(i+1, tiemposDeTransmision[i]))
+                    archivo.write("Cliente {}: {:.2f} segundos\n".format(i+1, tiemposDeTransmision[i]))
                 archivo.write("\n")
 
                 archivo.close()

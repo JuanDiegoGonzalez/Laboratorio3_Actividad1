@@ -5,16 +5,17 @@ from datetime import datetime
 host = None
 port = None
 transfExitosa = None
+tiempoDeTransmision = None
 
 def recibirArchivoDelServidor(s):
-    global host, port, transfExitosa
+    global host, port, transfExitosa, tiempoDeTransmision
 
     # Se envía la confirmacion de "listo"
-    listo = input("Ingrese algun caracter cuando este listo para recibir: ")
+    listo = input("Ingrese cualquier caracter cuando este listo para recibir: ")
     while not listo:
-        listo = input("Ingrese algun caracter cuando este listo para recibir: ")
+        listo = input("Ingrese cualquier caracter cuando este listo para recibir: ")
     s.send(b"Listo")
-    print("Cliente listo para recibir")
+    print("Cliente listo para recibir, esperando a los demas clientes")
 
     # Se recibe el numero del cliente
     numCliente = s.recv(1024).decode()
@@ -33,6 +34,9 @@ def recibirArchivoDelServidor(s):
         os.mkdir(os.path.join(os.getcwd(), "ArchivosRecibidos"))
     archivo = open("ArchivosRecibidos/Cliente{}-Prueba-{}.txt".format(numCliente, cantConexiones), "wb")
 
+    print("Transmision iniciada, recibiendo archivo desde el servidor...")
+    inicioTransmision = time.time()
+
     # Se recibe y se escribe el contenido del archivo
     recibido = s.recv(65536)
     contenido = b''
@@ -41,6 +45,8 @@ def recibirArchivoDelServidor(s):
         archivo.write(recibido)
         recibido = s.recv(65536)
     archivo.close()
+
+    tiempoDeTransmision = time.time() - inicioTransmision
     print("Archivo recibido")
 
     # Se comprueba el hash recibido
@@ -53,19 +59,24 @@ def recibirArchivoDelServidor(s):
     s.send(mensajeComprobacionHash.encode())
 
     # Se crea y se escribe el log
+    # a.
     if not os.path.isdir('Logs'):
         os.mkdir(os.path.join(os.getcwd(), "Logs"))
     fechaStr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     archivo = open("Logs/{}({}).txt".format(fechaStr, numCliente), "w")
 
+    # b.
     archivo.write("Nombre del archivo recibido: {}\n".format(nombreArchivo))
     archivo.write("Tamano del archivo recibido: {} bytes\n\n".format(os.path.getsize("ArchivosRecibidos/Cliente{}-Prueba-{}.txt".format(numCliente, cantConexiones))))
 
+    # c.
     archivo.write("Servidor desde el que se realizo la transferencia: ({}, {})\n\n".format(socket.gethostbyname(host), port))
 
-    archivo.write("{}\n\n".format(mensajeComprobacionHash))
+    # d.
+    archivo.write("Resultado de la transferencia: {}\n\n".format(mensajeComprobacionHash))
 
-    # archivo.write()
+    # e.
+    archivo.write("Tiempo de transmision: {:.2f} segundos\n".format(tiempoDeTransmision))
 
     archivo.close()
 
@@ -78,7 +89,7 @@ if __name__ == "__main__":
     port = 1234
     s.connect((host, port))
 
-    print("Conexion establecida. Listo para recibir el archivo desde el servidor")
+    print("Conexion establecida.")
 
     recibirArchivoDelServidor(s)
     time.sleep(2)
