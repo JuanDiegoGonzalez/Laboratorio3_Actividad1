@@ -9,6 +9,13 @@ transfExitosa = None
 def recibirArchivoDelServidor(s):
     global host, port, transfExitosa
 
+    # Se envía la confirmacion de "listo"
+    listo = input("Ingrese algun caracter cuando este listo para recibir: ")
+    while not listo:
+        listo = input("Ingrese algun caracter cuando este listo para recibir: ")
+    s.send(b"Listo")
+    print("Cliente listo para recibir")
+
     # Se recibe el numero del cliente
     numCliente = s.recv(1024).decode()
 
@@ -57,8 +64,6 @@ def recibirArchivoDelServidor(s):
     archivo.write("Servidor desde el que se realizo la transferencia: ({}, {})\n\n".format(socket.gethostbyname(host), port))
 
     archivo.write("{}\n\n".format(mensajeComprobacionHash))
-
-    # archivo.write()
 
     # archivo.write()
 

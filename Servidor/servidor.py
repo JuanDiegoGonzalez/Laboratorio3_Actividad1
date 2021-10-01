@@ -8,9 +8,18 @@ threadsClientes = []
 direccionesClientes = []
 cantConexiones = None
 resultComprobacionHash = []
+cantidadListos = 0
+tiemposDeTransmision = []
 
 def enviarArchivoAlCliente(socket, infoCliente, numCliente):
-    global nombreArchivo, contenidoArchivo, resultComprobacionHash
+    global nombreArchivo, contenidoArchivo, resultComprobacionHash, cantidadListos
+
+    # Se recibe la confirmacion de listo
+    socket.recv(1024).decode()
+    cantidadListos += 1
+
+    while cantidadListos < cantConexiones:
+        ...
 
     # Se envia el numero del cliente
     socket.send(numCliente.encode())
@@ -30,11 +39,15 @@ def enviarArchivoAlCliente(socket, infoCliente, numCliente):
     socket.send(hashCode.digest())
     time.sleep(0.1)
 
+    inicioTransmision = time.time()
+
     # Se envia el contenido del archivo
     socket.send(contenidoArchivo)
     time.sleep(0.1)
     socket.send(b'Fin')
     time.sleep(0.1)
+
+    tiemposDeTransmision[int(numCliente)-1] = time.time() - inicioTransmision
 
     # Se recibe el resultado de la comprobacion del hash
     resultComprobacionHash[int(numCliente)-1] = socket.recv(1024).decode()
@@ -53,7 +66,6 @@ if __name__ == "__main__":
         cantConexiones = int(input("Ingrese la cantidad de conexiones concurrentes: "))
         if cantConexiones < 1:
             raise ValueError("[Error] El numero debe ser mayor a 0")
-        resultComprobacionHash = [None for i in range(cantConexiones)]
 
         print("\nServidor listo para atender clientes")
 
@@ -71,6 +83,8 @@ if __name__ == "__main__":
             thread = threading.Thread(target=enviarArchivoAlCliente, args=(clientSocket,addr, str(len(threadsClientes)+1)))
             threadsClientes.append(thread)
             direccionesClientes.append(addr)
+            resultComprobacionHash = [None for i in range(cantConexiones)]
+            tiemposDeTransmision = [None for i in range(cantConexiones)]
 
             # Cuando se completa el grupo de clientes, se les envia el archivo y se escribe el log
             if len(threadsClientes) == cantConexiones:
@@ -99,9 +113,10 @@ if __name__ == "__main__":
                     archivo.write("Cliente {}: {}\n".format(i+1, resultComprobacionHash[i]))
                 archivo.write("\n")
 
-                # archivo.write()
-
-                # archivo.write()
+                archivo.write("Tiempos de transmision:\n")
+                for i in range(cantConexiones):
+                    archivo.write("Cliente {}: {} segundos\n".format(i+1, tiemposDeTransmision[i]))
+                archivo.write("\n")
 
                 archivo.close()
 
@@ -109,6 +124,8 @@ if __name__ == "__main__":
                 threadsClientes = []
                 direccionesClientes = []
                 resultComprobacionHash = [None for i in range(cantConexiones)]
+                cantidadListos = 0
+                tiemposDeTransmision = [None for i in range(cantConexiones)]
 
     except (FileNotFoundError, ValueError, ConnectionResetError) as e:
         print("\n", e, sep="")
