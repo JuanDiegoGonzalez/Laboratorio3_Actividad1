@@ -1,4 +1,4 @@
-import socket, hashlib, time, os
+import socket, threading, hashlib, time, os
 from datetime import datetime
 
 # Declaracion de atributos
@@ -7,11 +7,10 @@ port = None
 transfExitosa = None
 tiempoDeTransmision = None
 
-def recibirArchivoDelServidor(s):
+def recibirArchivoDelServidor(s, listo):
     global host, port, transfExitosa, tiempoDeTransmision
 
     # Se envía la confirmacion de "listo"
-    listo = input("Ingrese cualquier caracter cuando este listo para recibir: ")
     while not listo:
         listo = input("Ingrese cualquier caracter cuando este listo para recibir: ")
     s.send(b"Listo")
@@ -30,8 +29,6 @@ def recibirArchivoDelServidor(s):
     hashRecibido = s.recv(1024)
 
     # Se abre el archivo donde se guardara el contenido recibido
-    if not os.path.isdir('ArchivosRecibidos'):
-        os.mkdir(os.path.join(os.getcwd(), "ArchivosRecibidos"))
     archivo = open("ArchivosRecibidos/Cliente{}-Prueba-{}.txt".format(numCliente, cantConexiones), "wb")
 
     print("Transmision iniciada, recibiendo archivo desde el servidor...")
@@ -40,7 +37,11 @@ def recibirArchivoDelServidor(s):
     # Se recibe y se escribe el contenido del archivo
     recibido = s.recv(65536)
     contenido = b''
+    i = 0
     while recibido != b'Fin':
+        i += 1
+        print("Parte {} recibida".format(i))
+
         contenido += recibido
         archivo.write(recibido)
         recibido = s.recv(65536)
@@ -53,17 +54,20 @@ def recibirArchivoDelServidor(s):
     hashCode = hashlib.sha512()
     hashCode.update(contenido)
     mensajeComprobacionHash = "La entrega del archivo fue exitosa" if hashCode.digest() == hashRecibido else "La entrega del archivo NO fue exitosa"
-    print("La entrega del archivo fue exitosa")
+    print(mensajeComprobacionHash)
 
     # Se envia el resultado de la comprobacion del hash
     s.send(mensajeComprobacionHash.encode())
 
     # Se crea y se escribe el log
+    escribirLog(numCliente, nombreArchivo, cantConexiones, mensajeComprobacionHash, tiempoDeTransmision)
+
+    s.close()
+
+def escribirLog(numCliente, nombreArchivo, cantConexiones, mensajeComprobacionHash, tiempoDeTransmision):
     # a.
-    if not os.path.isdir('Logs'):
-        os.mkdir(os.path.join(os.getcwd(), "Logs"))
     fechaStr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-    archivo = open("Logs/{}({}).txt".format(fechaStr, numCliente), "w")
+    archivo = open("Logs/{} (Cliente {}).txt".format(fechaStr, numCliente), "w")
 
     # b.
     archivo.write("Nombre del archivo recibido: {}\n".format(nombreArchivo))
@@ -80,16 +84,40 @@ def recibirArchivoDelServidor(s):
 
     archivo.close()
 
-    s.close()
-
 if __name__ == "__main__":
-    # Se crea el socket del cliente (donde se conecta al servidor)
-    s = socket.socket()
-    host = socket.gethostname()
-    port = 1234
-    s.connect((host, port))
+    try:
+        # Se establece la cantidad de clientes que se van a crear
+        cantThreads = int(input("Ingrese la cantidad de clientes a crear: "))
+        if cantThreads < 1:
+            raise ValueError("[Error] El numero debe ser mayor a 0")
 
-    print("Conexion establecida.")
+        # Se crea la carpeta para guardar los archivos (si no existe)
+        if not os.path.isdir('ArchivosRecibidos'):
+            os.mkdir(os.path.join(os.getcwd(), "ArchivosRecibidos"))
 
-    recibirArchivoDelServidor(s)
-    time.sleep(2)
+        # Se crea la carpeta para guardar los logs (si no existe)
+        if not os.path.isdir('Logs'):
+            os.mkdir(os.path.join(os.getcwd(), "Logs"))
+
+        # Se crean los threads de los clientes
+        host = socket.gethostname()
+        port = 1234
+        threads = []
+
+        for i in range(cantThreads):
+            s = socket.socket()
+            s.connect((host, port))
+            print("Conexion establecida (Thread {}).".format(i+1))
+            thread = threading.Thread(target=recibirArchivoDelServidor, args=(s, '1'))
+            threads.append(thread)
+
+        for thread in threads:
+            thread.start()
+
+        for thread in threads:
+            thread.join()
+
+        time.sleep(2)
+
+    except (ValueError, ConnectionResetError) as e:
+        print("\n", e, sep="")

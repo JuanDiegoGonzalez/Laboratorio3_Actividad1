@@ -7,12 +7,12 @@ contenidoArchivo = None
 cantConexiones = None
 threadsClientes = []
 direccionesClientes = []
-resultComprobacionHash = []
 cantidadListos = 0
+resultComprobacionHash = []
 tiemposDeTransmision = []
 
 def enviarArchivoAlCliente(socket, infoCliente, numCliente):
-    global nombreArchivo, contenidoArchivo, resultComprobacionHash, cantidadListos
+    global cantidadListos
 
     # Se recibe la confirmacion de listo
     socket.recv(1024).decode()
@@ -20,6 +20,7 @@ def enviarArchivoAlCliente(socket, infoCliente, numCliente):
 
     # Se espera a que los demas clientes esten listos
     while cantidadListos < cantConexiones:
+        print("Cantidad de clientes listos: {}".format(cantidadListos))
         ...
 
     # Se envia el id del cliente
@@ -55,6 +56,36 @@ def enviarArchivoAlCliente(socket, infoCliente, numCliente):
     socket.close()
     print("Archivo enviado al cliente ... ", infoCliente)
 
+def escribirLog(tiemposDeTransmision):
+    # a.
+    fechaStr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    archivo = open("Logs/{}.txt".format(fechaStr), "w")
+
+    # b.
+    archivo.write("Nombre del archivo enviado: {}\n".format(nombreArchivo))
+    archivo.write(
+        "Tamano del archivo enviado: {} bytes\n\n".format(os.path.getsize("ArchivosAEnviar/{}".format(nombreArchivo))))
+
+    # c.
+    archivo.write("Clientes a los que se realizo la transferencia:\n")
+    for i in range(cantConexiones):
+        archivo.write("Cliente {}: {}\n".format(i + 1, direccionesClientes[i]))
+    archivo.write("\n")
+
+    # d.
+    archivo.write("Resultados de la transferencia:\n")
+    for i in range(cantConexiones):
+        archivo.write("Cliente {}: {}\n".format(i + 1, resultComprobacionHash[i]))
+    archivo.write("\n")
+
+    # e.
+    archivo.write("Tiempos de transmision:\n")
+    for i in range(cantConexiones):
+        archivo.write("Cliente {}: {:.2f} segundos\n".format(i + 1, tiemposDeTransmision[i]))
+    archivo.write("\n")
+
+    archivo.close()
+
 if __name__ == "__main__":
     try:
         # Se carga el contenido del archivo
@@ -77,6 +108,14 @@ if __name__ == "__main__":
         s.bind((host, port))
         s.listen(25)
 
+        # Se crea la carpeta para guardar el log (si no existe)
+        if not os.path.isdir('Logs'):
+            os.mkdir(os.path.join(os.getcwd(), "Logs"))
+
+        # Se inicializan las listas de clientes
+        resultComprobacionHash = [None for i in range(cantConexiones)]
+        tiemposDeTransmision = [None for i in range(cantConexiones)]
+
         # Se reciben y se atienden a los clientes
         while True:
             clientSocket, addr = s.accept()
@@ -84,8 +123,6 @@ if __name__ == "__main__":
             thread = threading.Thread(target=enviarArchivoAlCliente, args=(clientSocket,addr, str(len(threadsClientes)+1)))
             threadsClientes.append(thread)
             direccionesClientes.append(addr)
-            resultComprobacionHash = [None for i in range(cantConexiones)]
-            tiemposDeTransmision = [None for i in range(cantConexiones)]
 
             # Cuando se completa el grupo de clientes, se les envia el archivo y se escribe el log
             if len(threadsClientes) == cantConexiones:
@@ -95,42 +132,13 @@ if __name__ == "__main__":
                 for thread in threadsClientes:
                     thread.join()
 
-                # Se crea y se escribe el log
-                # a.
-                if not os.path.isdir('Logs'):
-                    os.mkdir(os.path.join(os.getcwd(), "Logs"))
-                fechaStr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-                archivo = open("Logs/{}.txt".format(fechaStr), "w")
-
-                # b.
-                archivo.write("Nombre del archivo enviado: {}\n".format(nombreArchivo))
-                archivo.write("Tamano del archivo enviado: {} bytes\n\n".format(os.path.getsize("ArchivosAEnviar/{}".format(nombreArchivo))))
-
-                # c.
-                archivo.write("Clientes a los que se realizo la transferencia:\n")
-                for i in range(cantConexiones):
-                    archivo.write("Cliente {}: {}\n".format(i+1, direccionesClientes[i]))
-                archivo.write("\n")
-
-                # d.
-                archivo.write("Resultados de la transferencia:\n")
-                for i in range(cantConexiones):
-                    archivo.write("Cliente {}: {}\n".format(i+1, resultComprobacionHash[i]))
-                archivo.write("\n")
-
-                # e.
-                archivo.write("Tiempos de transmision:\n")
-                for i in range(cantConexiones):
-                    archivo.write("Cliente {}: {:.2f} segundos\n".format(i+1, tiemposDeTransmision[i]))
-                archivo.write("\n")
-
-                archivo.close()
+                escribirLog(tiemposDeTransmision)
 
                 # Se reinician las listas de clientes
                 threadsClientes = []
                 direccionesClientes = []
-                resultComprobacionHash = [None for i in range(cantConexiones)]
                 cantidadListos = 0
+                resultComprobacionHash = [None for i in range(cantConexiones)]
                 tiemposDeTransmision = [None for i in range(cantConexiones)]
 
     except (FileNotFoundError, ValueError, ConnectionResetError) as e:
