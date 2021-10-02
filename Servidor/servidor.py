@@ -25,29 +25,28 @@ def enviarArchivoAlCliente(socket, infoCliente, numCliente):
 
     # Se envia el id del cliente
     socket.send(numCliente.encode())
-    time.sleep(0.1)
+    time.sleep(0.2)
 
     # Se envia la cantidad de conexiones concurrentes
     socket.send(str(cantConexiones).encode())
-    time.sleep(0.1)
+    time.sleep(0.2)
 
     # Se envia el nombre del archivo
     socket.send(nombreArchivo.encode())
-    time.sleep(0.1)
+    time.sleep(0.2)
 
     # Se envia el codigo de hash del archivo
     hashCode = hashlib.sha512()
     hashCode.update(contenidoArchivo)
     socket.send(hashCode.digest())
-    time.sleep(0.1)
+    time.sleep(0.2)
 
     inicioTransmision = time.time()
 
     # Se envia el contenido del archivo
     socket.send(contenidoArchivo)
-    time.sleep(0.1)
-    socket.send(b'Fin')
-    time.sleep(0.1)
+    socket.send('Fin'.encode())
+    time.sleep(0.2)
 
     tiemposDeTransmision[int(numCliente)-1] = time.time() - inicioTransmision
 
@@ -120,7 +119,7 @@ if __name__ == "__main__":
         while True:
             clientSocket, addr = s.accept()
             print('Conexion establecida desde ... ', addr)
-            thread = threading.Thread(target=enviarArchivoAlCliente, args=(clientSocket,addr, str(len(threadsClientes)+1)))
+            thread = threading.Thread(target=enviarArchivoAlCliente, args=(clientSocket, addr, str(len(threadsClientes)+1)))
             threadsClientes.append(thread)
             direccionesClientes.append(addr)
 

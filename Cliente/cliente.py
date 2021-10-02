@@ -29,30 +29,31 @@ def recibirArchivoDelServidor(s, listo):
     hashRecibido = s.recv(1024)
 
     # Se abre el archivo donde se guardara el contenido recibido
-    archivo = open("ArchivosRecibidos/Cliente{}-Prueba-{}.txt".format(numCliente, cantConexiones), "wb")
+    archivo = open("ArchivosRecibidos/Cliente{}-Prueba-{}.{}".format(numCliente, cantConexiones, nombreArchivo.split(".")[-1]), "wb")
 
     print("Transmision iniciada, recibiendo archivo desde el servidor...")
     inicioTransmision = time.time()
 
     # Se recibe y se escribe el contenido del archivo
     recibido = s.recv(65536)
-    contenido = b''
     i = 0
-    while recibido != b'Fin':
-        i += 1
-        print("Parte {} recibida".format(i))
-
-        contenido += recibido
+    while not str(recibido).endswith('Fin\''):
         archivo.write(recibido)
+        i+=1
+        print("Cliente {}: Parte {} recibida".format(numCliente,i))
         recibido = s.recv(65536)
-    archivo.close()
+    archivo.write(recibido[:-3])
 
     tiempoDeTransmision = time.time() - inicioTransmision
-    print("Archivo recibido")
+    print("Transmision completa. Archivo recibido.")
+
+    archivo.close()
 
     # Se comprueba el hash recibido
     hashCode = hashlib.sha512()
-    hashCode.update(contenido)
+    archivo = open("ArchivosRecibidos/Cliente{}-Prueba-{}.{}".format(numCliente, cantConexiones, nombreArchivo.split(".")[-1]), "rb")
+    hashCode.update(archivo.read())
+    archivo.close()
     mensajeComprobacionHash = "La entrega del archivo fue exitosa" if hashCode.digest() == hashRecibido else "La entrega del archivo NO fue exitosa"
     print(mensajeComprobacionHash)
 
@@ -71,7 +72,7 @@ def escribirLog(numCliente, nombreArchivo, cantConexiones, mensajeComprobacionHa
 
     # b.
     archivo.write("Nombre del archivo recibido: {}\n".format(nombreArchivo))
-    archivo.write("Tamano del archivo recibido: {} bytes\n\n".format(os.path.getsize("ArchivosRecibidos/Cliente{}-Prueba-{}.txt".format(numCliente, cantConexiones))))
+    archivo.write("Tamano del archivo recibido: {} bytes\n\n".format(os.path.getsize("ArchivosRecibidos/Cliente{}-Prueba-{}.{}".format(numCliente, cantConexiones, nombreArchivo.split(".")[-1]))))
 
     # c.
     archivo.write("Servidor desde el que se realizo la transferencia: ({}, {})\n\n".format(socket.gethostbyname(host), port))
