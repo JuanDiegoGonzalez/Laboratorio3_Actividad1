@@ -106,6 +106,7 @@ if __name__ == "__main__":
         port = 1234
         s.bind((host, port))
         s.listen(25)
+        print("Direccion IP del servidor:", socket.gethostbyname(host))
 
         # Se crea la carpeta para guardar el log (si no existe)
         if not os.path.isdir('Logs'):

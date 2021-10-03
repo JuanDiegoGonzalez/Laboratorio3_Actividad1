@@ -75,7 +75,7 @@ def escribirLog(numCliente, nombreArchivo, cantConexiones, mensajeComprobacionHa
     archivo.write("Tamano del archivo recibido: {} bytes\n\n".format(os.path.getsize("ArchivosRecibidos/Cliente{}-Prueba-{}.{}".format(numCliente, cantConexiones, nombreArchivo.split(".")[-1]))))
 
     # c.
-    archivo.write("Servidor desde el que se realizo la transferencia: ({}, {})\n\n".format(socket.gethostbyname(host), port))
+    archivo.write("Servidor desde el que se realizo la transferencia: ({}, {})\n\n".format(host, port))
 
     # d.
     archivo.write("Resultado de la transferencia: {}\n\n".format(mensajeComprobacionHash))
@@ -101,7 +101,7 @@ if __name__ == "__main__":
             os.mkdir(os.path.join(os.getcwd(), "Logs"))
 
         # Se crean los threads de los clientes
-        host = socket.gethostname()
+        host = input("Ingrese la direccion IP del servidor (esta fue indicada en la terminal donde se ejecuto el servidor): ")
         port = 1234
         threads = []
 
