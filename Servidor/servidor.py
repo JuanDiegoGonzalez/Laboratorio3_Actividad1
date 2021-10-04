@@ -86,7 +86,7 @@ def escribirLog(tiemposDeTransmision):
 if __name__ == "__main__":
     try:
         # Se carga el contenido del archivo
-        nombreArchivo = input("Ingrese el nombre del archivo a transferir (incluyendo la extension): ")
+        nombreArchivo = input("\nIngrese el nombre del archivo a transferir (incluyendo la extension): ")
         print("Cargando archivo...")
         archivo = open("ArchivosAEnviar/{}".format(nombreArchivo), "rb")
         contenidoArchivo = archivo.read()
