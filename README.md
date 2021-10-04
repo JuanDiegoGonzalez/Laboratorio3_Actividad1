@@ -5,7 +5,7 @@
 1. Ejecutar el archivo "servidor.py" en la carpeta "Servidor".
 2. Ingresar por consola el nombre del archivo a enviar (incluyendo la extension). Este debe estar en la carpeta "Servidor/ArchivosAEnviar".
 3. Ingresar por consola la cantidad de clientes que se van a atender en simultaneo (minimo 1).
-4. El servidor va a intentar obtener automaticamente la direccion IP de la maquina donde se esta ejecutando. Si ocurre algun error en el proceso, se debe ingresar manualmente por consola la IP de esa maquina (se puede consultar ejecutando el comando "ipconfig" o "ifconfig" en una terminal).
+4. El servidor va a intentar obtener automaticamente la direccion IP de la maquina donde se esta ejecutando. Si ocurre algun error en el proceso, se debe ingresar manualmente por consola la direccion IP de esa maquina (se puede consultar ejecutando el comando "ipconfig" o "ifconfig" en una terminal).
 5. Luego de realizar los pasos anteriores, el servidor estara "listo para atender clientes".
 
 Nota: La carpeta "Logs" la crea automaticamente la aplicacion (en caso de que no este creada).
