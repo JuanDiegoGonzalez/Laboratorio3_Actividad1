@@ -113,7 +113,7 @@ if __name__ == "__main__":
             ipaddress.IPv4Network(host)
 
         except:  # Si no se puede (es decir, si hay error), se le pregunta al usuario
-            host = input("Ingrese la direccion IP de esta maquina (ejecutar el comando ipconfig o ifconfig en una terminal): ")
+            host = input("\nIngrese la direccion IP de esta maquina (ejecutar el comando ipconfig o ifconfig en una terminal): ")
 
         port = 1234
         s.bind((host, port))
