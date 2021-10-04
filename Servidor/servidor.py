@@ -20,7 +20,6 @@ def enviarArchivoAlCliente(socket, infoCliente, numCliente):
 
     # Se espera a que los demas clientes esten listos
     while cantidadListos < cantConexiones:
-        print("Cantidad de clientes listos: {}".format(cantidadListos))
         ...
 
     # Se envia el id del cliente
