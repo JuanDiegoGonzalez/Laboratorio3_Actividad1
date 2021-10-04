@@ -105,12 +105,7 @@ if __name__ == "__main__":
         port = 1234
         s.bind((host, port))
         s.listen(25)
-        
-        # Se informa la direccion ip a la cual se debe conectar el cliente
-        auxSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        auxSocket.connect(("8.8.8.8", 80))
-        print("Direccion IP del servidor:", auxSocket.getsockname()[0])
-        auxSocket.close()
+        print("Direccion IP del servidor:", socket.gethostbyname(host))
         
         # Se crea la carpeta para guardar el log (si no existe)
         if not os.path.isdir('Logs'):
