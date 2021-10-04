@@ -101,13 +101,13 @@ if __name__ == "__main__":
         s = socket.socket()
         host = None
 
-        try:  # Identificar la ip automaticamente
+        try:  # Se intenta identificar la IP automaticamente
             if platform.system() == 'Windows':
                 p = subprocess.Popen('ipconfig', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
                 host = str(p.stdout.readlines()[7]).split(" ")[-1].split("\\")[0]  # host = 192.168.0.2 (o similar)
             elif platform.system() == 'Linux':
                 p = subprocess.Popen('ifconfig', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-                print(str(p.stdout.readlines()[1]).split("inet")[1].split(" ")[1])  # host = 192.168.0.16 (o similar)
+                host = str(p.stdout.readlines()[1]).split("inet")[1].split(" ")[1]  # host = 192.168.0.16 (o similar)
 
             ipaddress.IPv4Network(host)
 
