@@ -7,7 +7,7 @@
 3. Ingresar por consola la cantidad de clientes que se van a atender en simultaneo (minimo 1).
 4. El servidor va a intentar obtener automaticamente la direccion IP de la maquina donde se esta ejecutando:  
      a) Si se logra identificar la IP automaticamente, el servidor estara "listo para atender clientes".  
-     b) Si ocurre algun error en el proceso, se debe ingresar manualmente por consola la direccion IP de esa maquina (se puede consultar ejecutando el comando "ipconfig" o "ifconfig" en una terminal). Luego de esto, el servidor estara "listo para atender clientes".
+     b) Si ocurre algun error en este proceso, se debe ingresar manualmente por consola la direccion IP de esa maquina (se puede consultar ejecutando el comando "ipconfig" o "ifconfig" en una terminal). Luego de esto, el servidor estara "listo para atender clientes".
 
 Nota: La carpeta "Logs" la crea automaticamente la aplicacion (en caso de que no este creada).
 
