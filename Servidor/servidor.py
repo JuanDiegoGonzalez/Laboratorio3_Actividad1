@@ -61,8 +61,7 @@ def escribirLog(tiemposDeTransmision):
 
     # b.
     archivo.write("Nombre del archivo enviado: {}\n".format(nombreArchivo))
-    archivo.write(
-        "Tamano del archivo enviado: {} bytes\n\n".format(os.path.getsize("ArchivosAEnviar/{}".format(nombreArchivo))))
+    archivo.write("Tamano del archivo enviado: {} bytes\n\n".format(os.path.getsize("ArchivosAEnviar/{}".format(nombreArchivo))))
 
     # c.
     archivo.write("Clientes a los que se realizo la transferencia:\n")
@@ -88,12 +87,14 @@ if __name__ == "__main__":
     try:
         # Se carga el contenido del archivo
         nombreArchivo = input("Ingrese el nombre del archivo a transferir (incluyendo la extension): ")
+        print("Cargando archivo...")
         archivo = open("ArchivosAEnviar/{}".format(nombreArchivo), "rb")
         contenidoArchivo = archivo.read()
         archivo.close()
+        print("Archivo cargado")
 
         # Se establece la cantidad de clientes a atender al tiempo
-        cantConexiones = int(input("Ingrese la cantidad de conexiones concurrentes: "))
+        cantConexiones = int(input("\nIngrese la cantidad de conexiones concurrentes: "))
         if cantConexiones < 1:
             raise ValueError("[Error] El numero debe ser mayor a 0")
 
